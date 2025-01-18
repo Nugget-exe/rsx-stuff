@@ -1,0 +1,156 @@
+import sys
+from PyQt6.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QPushButton,
+    QLabel, QLineEdit, QGridLayout, QComboBox, QGroupBox,
+    QVBoxLayout, QHBoxLayout, QSpinBox, QDoubleSpinBox, QLCDNumber,
+    QScrollArea, QSizePolicy
+)
+class SignalStatusWidget(QGroupBox):
+    """
+    The custom widget for signal status.
+    There are few types of widgets:
+    1. battery status
+    2. motor status
+    3. LED status
+    """
+
+    def __init__(self, widget_type: str):
+        super().__init__("Signal Status")
+
+        ss_layout = QGridLayout(self)
+        self._layout = ss_layout
+
+        # The close button
+        ss_close_button = QPushButton("X")
+        ss_close_button.setFixedSize(20, 20)
+        ss_close_button.clicked.connect(self.close)
+        ss_layout.addWidget(ss_close_button, 0, 2)
+
+        # Set the layout stretch to make the close button not consume too much space
+        ss_layout.setColumnStretch(0, 1)
+        ss_layout.setColumnStretch(1, 1)
+        ss_layout.setColumnStretch(2, 0)
+class BatteryStatusWidget(SignalStatusWidget):
+    def __init__(self):
+        super().__init__("battery")
+
+        ss_layout = self._layout
+
+        ss_layout.addWidget(QLabel("Battery Status"), 0, 0)
+        battery_status = QLabel("Charging")
+        ss_layout.addWidget(battery_status, 0, 1)
+
+        ss_layout.addWidget(QLabel("Voltage"), 1, 0)
+        battery_voltage = QLabel("12.5V")
+        ss_layout.addWidget(battery_voltage, 1, 1)
+
+        ss_layout.addWidget(QLabel("Current"), 2, 0)
+        battery_current = QLabel("0.5A")
+        ss_layout.addWidget(battery_current, 2, 1)
+
+        ss_layout.addWidget(QLabel("Temperature"), 3, 0)
+        battery_temp = QLabel("25°C")
+        ss_layout.addWidget(battery_temp, 3, 1)
+class MotorStatusWidget(SignalStatusWidget):
+    def __init__(self):
+        super().__init__("motor")
+
+        ss_layout = self._layout
+
+        ss_layout.addWidget(QLabel("Motor Status"), 0, 0)
+        motor_status = QLabel("Running")
+        ss_layout.addWidget(motor_status, 0, 1)
+
+        ss_layout.addWidget(QLabel("Speed"), 1, 0)
+        motor_speed = QLabel("1000 RPM")
+        ss_layout.addWidget(motor_speed, 1, 1)
+
+        ss_layout.addWidget(QLabel("Torque"), 2, 0)
+        motor_torque = QLabel("10 Nm")
+        ss_layout.addWidget(motor_torque, 2, 1)
+
+        ss_layout.addWidget(QLabel("Temperature"), 3, 0)
+        motor_temp = QLabel("45°C")
+        ss_layout.addWidget(motor_temp, 3, 1)
+class LEDStatusWidget(SignalStatusWidget):
+    def __init__(self):
+        super().__init__("LED")
+
+        ss_layout = self._layout
+
+        ss_layout.addWidget(QLabel("LED Status"), 0, 0)
+        led_status = QLabel("On")
+        ss_layout.addWidget(led_status, 0, 1)
+
+        ss_layout.addWidget(QLabel("Color"), 1, 0)
+        led_color = QLabel("Green")
+        ss_layout.addWidget(led_color, 1, 1)
+class GroupBoxDemo(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        # Set up the main window
+        self.setWindowTitle("Dynamic GroupBox Example")
+        self.resize(400, 250)
+
+        # Create a layout for the main window
+        self.layout = QVBoxLayout()
+
+        # Create a QLabel for instructions
+        self.label = QLabel("Add a status, press x to close the window")
+        self.layout.addWidget(self.label)
+
+        # Create a QComboBox with options
+        self.combo_box = QComboBox()
+        self.combo_box.addItems(["ADD STATUS", "BATTERIES", "MOTORS", "LEDs"])
+        self.layout.addWidget(self.combo_box)
+
+        # Create a placeholder layout to hold the group boxes
+        self.group_box_container = QVBoxLayout()
+
+
+        # Connect the combo box signal to a method that updates the UI
+        self.combo_box.currentIndexChanged.connect(self.add_groupbox)
+
+        # Set the layout for the main widget
+        self.setLayout(self.layout)
+
+    def add_groupbox(self, index):
+        """Create a QGroupBox based on the selected option."""
+        # Clear previous group boxes
+        # for i in reversed(range(self.group_box_container.count())):
+        #     widget = self.group_box_container.itemAt(i).widget()
+        #     if widget is not None:
+        #         widget.deleteLater()
+        
+        list_selected = [0, 0, 0]
+        if index == 1 and list_selected[0] == 0:   #batteries selected
+            groupbox = QGroupBox("Batteries")
+            battery_box = BatteryStatusWidget()
+            self.layout.addWidget(battery_box)
+            list_selected[0] = 1;
+
+        elif index == 2 and list_selected[1] == 0:  #motors selected
+            groupbox = QGroupBox("Motors")
+            motor_box = MotorStatusWidget()
+            self.layout.addWidget(motor_box)
+            list_selected[0] = 1;
+
+        elif index == 3 and list_selected[2] == 0:  # LED selected
+            groupbox = QGroupBox("LEDs")
+            LEDs_box = LEDStatusWidget()
+            self.layout.addWidget(LEDs_box)
+            list_selected[0] = 1;
+
+        else:
+            return  # Do nothing if the default option is selected
+
+        # Add the new group box to the layout
+        self.group_box_container.addWidget(groupbox)
+
+# Application execution
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = GroupBoxDemo()
+    window.show()
+    sys.exit(app.exec())
