@@ -6,8 +6,8 @@ import serial.tools.list_ports
 ports = serial.tools.list_ports.comports()
 
 port = ports[0] if ports else None
-#arduino = Serial(port=port.device, baudrate=9600, timeout=.1)
-arduino = None
+arduino = Serial(port=port.device, baudrate=9600, timeout=.1)
+# arduino = None
 
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton,
@@ -207,7 +207,7 @@ class RobotGUI(QMainWindow):
 
         path_entry_content = QWidget()
 
-        path_entry_content.resize()
+        # path_entry_content.resize()
 
         path_entry_content_layout = QVBoxLayout(path_entry_content)
         path_entry_content_layout.addWidget(Add_button)
@@ -370,9 +370,9 @@ class RobotGUI(QMainWindow):
 
 def write_read(x):
     arduino.write(bytes(x, 'utf-8'))
-    time.sleep(0.1)
+    time.sleep(1)
     data = arduino.readline()
-    print(data)
+    print("STM32:", data.decode('utf-8'), end='')
     return data
 
 def main():
