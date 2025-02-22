@@ -226,7 +226,7 @@ class RobotControlGUI(QMainWindow):
         # specification
         self.power_layout.addWidget(QLabel("Main Controller"), 1, 1)
         self.power_layout.addWidget(QLabel("Tire Power Control Signals, Network Switch"), 2, 1)
-        self.power_layout.addWidget(QLabel("---"), 3, 1)
+        self.power_layout.addWidget(QLabel("AUX"), 3, 1)
         self.power_layout.addWidget(QLabel("Computer"), 4, 1)
         self.power_layout.addWidget(QLabel("Antenna, Cameras"), 5, 1)
         self.power_layout.addWidget(QLabel("Special Scientific Camera, Main Bus"), 6, 1)
