@@ -73,8 +73,7 @@ class StatusSelectionWidget(QWidget):
         elif index == 3:  # LEDs
             led_status = LEDStatusWidget()
             self.main_layout.addWidget(led_status)
-        else:
-            return
+        self.status_selector.setCurrentIndex(0)  # Reset selection
 
 # class PowerSupplyWidget(QWidget):
 #     def __init__(self):
@@ -230,23 +229,23 @@ class RobotControlGUI(QMainWindow):
         self.power_layout.addWidget(QLabel("---"), 3, 1)
         self.power_layout.addWidget(QLabel("Computer"), 4, 1)
         self.power_layout.addWidget(QLabel("Antenna, Cameras"), 5, 1)
-        self.power_layout.addWidget(QLabel("Special Scientific Camera"), 6, 1)
+        self.power_layout.addWidget(QLabel("Special Scientific Camera, Main Bus"), 6, 1)
 
         # real voltage
-        self.power_layout.addWidget(QLabel("--"), 1, 2)
-        self.power_layout.addWidget(QLabel("--"), 2, 2)
-        self.power_layout.addWidget(QLabel("--"), 3, 2)
-        self.power_layout.addWidget(QLabel("--"), 4, 2)
-        self.power_layout.addWidget(QLabel("--"), 5, 2)
-        self.power_layout.addWidget(QLabel("--"), 6, 2)
+        self.power_layout.addWidget(QLabel("3.29"), 1, 2)
+        self.power_layout.addWidget(QLabel("4.89"), 2, 2)
+        self.power_layout.addWidget(QLabel("11.98"), 3, 2)
+        self.power_layout.addWidget(QLabel("19.05"), 4, 2)
+        self.power_layout.addWidget(QLabel("23.95"), 5, 2)
+        self.power_layout.addWidget(QLabel("55.80"), 6, 2)
 
         # real current
-        self.power_layout.addWidget(QLabel("--"), 1, 3)
-        self.power_layout.addWidget(QLabel("--"), 2, 3)
-        self.power_layout.addWidget(QLabel("--"), 3, 3)
-        self.power_layout.addWidget(QLabel("--"), 4, 3)
-        self.power_layout.addWidget(QLabel("--"), 5, 3)
-        self.power_layout.addWidget(QLabel("--"), 6, 3)
+        self.power_layout.addWidget(QLabel("11.9"), 1, 3)
+        self.power_layout.addWidget(QLabel("29.5"), 2, 3)
+        self.power_layout.addWidget(QLabel("1120"), 3, 3)
+        self.power_layout.addWidget(QLabel("5900"), 4, 3)
+        self.power_layout.addWidget(QLabel("3203"), 5, 3)
+        self.power_layout.addWidget(QLabel("4732"), 6, 3)
 
         # status:
         self.status_3_3 = QLabel("--", self)
