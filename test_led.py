@@ -139,6 +139,22 @@ class RobotControlGUI(QMainWindow):
         self.status_widget = StatusSelectionWidget()
         status_layout.addWidget(self.status_widget)
         left_layout.addWidget(status_group)
+
+        # led control box:
+        LED_control_group = QGroupBox("LED Control")
+        LED_control_layout = QGridLayout(LED_control_group)
+        LED_button_ON = QPushButton("LED ON")
+        LED_button_OFF = QPushButton("LED OFF")
+        LED_button_BLINK = QPushButton("LED BLINK")
+        LED_control_layout.addWidget(LED_button_ON, 0,0)
+        LED_control_layout.addWidget(LED_button_OFF, 0,1)
+        LED_control_layout.addWidget(LED_button_BLINK, 0,2)
+        left_layout.addWidget(LED_control_group)
+
+        # click the led button:
+        LED_button_ON.clicked.connect(self.handle_led_on)
+        LED_button_OFF.clicked.connect(self.handle_led_off)
+        LED_button_BLINK.clicked.connect(self.handle_led_blink)
         
         # Power Supply Section
         power_group = QGroupBox("Power Supply")
@@ -167,12 +183,28 @@ class RobotControlGUI(QMainWindow):
         emergency_layout.addWidget(stop_button, 1, 1)
         
         right_layout.addWidget(emergency_group)
+
+        # some related functions:
+        # the LED control section:
+    def handle_led_on(self):
+        write_read("LED_ON")
+        print("LED_ON")
+
+    def handle_led_off(self):
+        write_read("LED_OFF")
+        print("LED_OFF")
+
+    def handle_led_blink(self):
+        write_read("LED_BLINK")
+        print("LED_BLINK")
     
     def on_go(self):
         print(f"Go with dt={self.dt_spin.value()}, Z={self.z_spin.value()}")
     
     def on_stop(self):
         print("Stop pressed")
+
+
 
 # Main function to run the application
 def main():
@@ -183,3 +215,12 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# communicate with the arduino: the write_read function
+def write_read(x):
+    arduino.write(bytes(x, 'utf-8'))
+    time.sleep(0.1)
+    data = arduino.readline()
+    print(data)
+    return data
