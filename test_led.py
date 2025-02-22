@@ -206,65 +206,62 @@ class RobotControlGUI(QMainWindow):
         LED_button_BLINK.clicked.connect(self.handle_led_blink)
         
         # Power Supply Section
-        power_group = QGroupBox("Power Supply")
-        power_layout = QGridLayout(power_group)
+        self.power_group = QGroupBox("Power Supply")
+        self.power_layout = QGridLayout(self.power_group)
 
-        power_layout.addWidget(QLabel("Voltage"), 0, 0)
-        power_layout.addWidget(QLabel("Specification"), 0, 1)
-        power_layout.addWidget(QLabel("Operation Voltage(V)"), 0, 2)   
-        power_layout.addWidget(QLabel("Operation Current(mA)"), 0, 3)
-        power_layout.addWidget(QLabel("Status"), 0, 4)
-        power_layout.addWidget(QLabel("Control"), 0, 5)
+        self.power_layout.addWidget(QLabel("Voltage"), 0, 0)
+        self.power_layout.addWidget(QLabel("Specification"), 0, 1)
+        self.power_layout.addWidget(QLabel("Operation Voltage(V)"), 0, 2)   
+        self.power_layout.addWidget(QLabel("Operation Current(mA)"), 0, 3)
+        self.power_layout.addWidget(QLabel("Status"), 0, 4)
+        self.power_layout.addWidget(QLabel("Control"), 0, 5)
 
         # voltage
-        power_layout.addWidget(QLabel("3.3V"), 1, 0)
-        power_layout.addWidget(QLabel("5V"), 2, 0)
-        power_layout.addWidget(QLabel("12V"), 3, 0)
-        power_layout.addWidget(QLabel("19V"), 4, 0)
-        power_layout.addWidget(QLabel("24V"), 5, 0)
-        power_layout.addWidget(QLabel("56V"), 6, 0)
+        self.power_layout.addWidget(QLabel("3.3V"), 1, 0)
+        self.power_layout.addWidget(QLabel("5V"), 2, 0)
+        self.power_layout.addWidget(QLabel("12V"), 3, 0)
+        self.power_layout.addWidget(QLabel("19V"), 4, 0)
+        self.power_layout.addWidget(QLabel("24V"), 5, 0)
+        self.power_layout.addWidget(QLabel("56V"), 6, 0)
 
         # specification
-        power_layout.addWidget(QLabel("Main Controller"), 1, 1)
-        power_layout.addWidget(QLabel("Tire Power Control Signals, Network Switch"), 2, 1)
-        power_layout.addWidget(QLabel("---"), 3, 1)
-        power_layout.addWidget(QLabel("Computer"), 4, 1)
-        power_layout.addWidget(QLabel("Antenna, Cameras"), 5, 1)
-        power_layout.addWidget(QLabel("Special Scientific Camera"), 6, 1)
+        self.power_layout.addWidget(QLabel("Main Controller"), 1, 1)
+        self.power_layout.addWidget(QLabel("Tire Power Control Signals, Network Switch"), 2, 1)
+        self.power_layout.addWidget(QLabel("---"), 3, 1)
+        self.power_layout.addWidget(QLabel("Computer"), 4, 1)
+        self.power_layout.addWidget(QLabel("Antenna, Cameras"), 5, 1)
+        self.power_layout.addWidget(QLabel("Special Scientific Camera"), 6, 1)
 
         # real voltage
-        power_layout.addWidget(QLabel("--"), 1, 2)
-        power_layout.addWidget(QLabel("--"), 2, 2)
-        power_layout.addWidget(QLabel("--"), 3, 2)
-        power_layout.addWidget(QLabel("--"), 4, 2)
-        power_layout.addWidget(QLabel("--"), 5, 2)
-        power_layout.addWidget(QLabel("--"), 6, 2)
+        self.power_layout.addWidget(QLabel("--"), 1, 2)
+        self.power_layout.addWidget(QLabel("--"), 2, 2)
+        self.power_layout.addWidget(QLabel("--"), 3, 2)
+        self.power_layout.addWidget(QLabel("--"), 4, 2)
+        self.power_layout.addWidget(QLabel("--"), 5, 2)
+        self.power_layout.addWidget(QLabel("--"), 6, 2)
 
         # real current
-        power_layout.addWidget(QLabel("--"), 1, 3)
-        power_layout.addWidget(QLabel("--"), 2, 3)
-        power_layout.addWidget(QLabel("--"), 3, 3)
-        power_layout.addWidget(QLabel("--"), 4, 3)
-        power_layout.addWidget(QLabel("--"), 5, 3)
-        power_layout.addWidget(QLabel("--"), 6, 3)
+        self.power_layout.addWidget(QLabel("--"), 1, 3)
+        self.power_layout.addWidget(QLabel("--"), 2, 3)
+        self.power_layout.addWidget(QLabel("--"), 3, 3)
+        self.power_layout.addWidget(QLabel("--"), 4, 3)
+        self.power_layout.addWidget(QLabel("--"), 5, 3)
+        self.power_layout.addWidget(QLabel("--"), 6, 3)
 
         # status:
-        status_3_3 = "ON"
-        status_5 = "OFF"
-        status_9 = "OFF"
-        status_12 = "OFF"
-        status_24 = "OFF"
-        status_56 = "OFF" 
-        if self.handle_on_3_3 is 1:
-            status_3_3 = "ON"
-        elif self.handle_off_3_3 is 1:
-            status_3_3 = "OFF"
-        power_layout.addWidget(QLabel(status_3_3), 1, 4)
-        power_layout.addWidget(QLabel(status_5), 2, 4)
-        power_layout.addWidget(QLabel(status_9), 3, 4)
-        power_layout.addWidget(QLabel(status_12), 4, 4)
-        power_layout.addWidget(QLabel(status_24), 5, 4)
-        power_layout.addWidget(QLabel(status_56), 6, 4)  
+        status_3_3 = QLabel("--", self)
+        status_5 = "--"
+        status_9 = "--"
+        status_12 = "--"
+        status_24 = "--"
+        status_56 = "--" 
+
+        self.power_layout.addWidget(status_3_3, 1, 4)
+        self.power_layout.addWidget(QLabel(status_5), 2, 4)
+        self.power_layout.addWidget(QLabel(status_9), 3, 4)
+        self.power_layout.addWidget(QLabel(status_12), 4, 4)
+        self.power_layout.addWidget(QLabel(status_24), 5, 4)
+        self.power_layout.addWidget(QLabel(status_56), 6, 4)  
 
         # control
         #for i in range(1,7):
@@ -282,18 +279,18 @@ class RobotControlGUI(QMainWindow):
         button_24_off = QPushButton("OFF")
         button_56_on = QPushButton("ON")
         button_56_off = QPushButton("OFF")
-        power_layout.addWidget(button_3_3_on, 1, 5)
-        power_layout.addWidget(button_3_3_off, 1, 6)
-        power_layout.addWidget(button_5_on, 2, 5)
-        power_layout.addWidget(button_5_off, 2, 6)
-        power_layout.addWidget(button_12_on, 3, 5)
-        power_layout.addWidget(button_12_off, 3, 6)
-        power_layout.addWidget(button_19_on, 4, 5)
-        power_layout.addWidget(button_19_off, 4, 6)
-        power_layout.addWidget(button_24_on, 5, 5)
-        power_layout.addWidget(button_24_off, 5, 6)
-        power_layout.addWidget(button_56_on, 6, 5)
-        power_layout.addWidget(button_56_off, 6, 6)
+        self.power_layout.addWidget(button_3_3_on, 1, 5)
+        self.power_layout.addWidget(button_3_3_off, 1, 6)
+        self.power_layout.addWidget(button_5_on, 2, 5)
+        self.power_layout.addWidget(button_5_off, 2, 6)
+        self.power_layout.addWidget(button_12_on, 3, 5)
+        self.power_layout.addWidget(button_12_off, 3, 6)
+        self.power_layout.addWidget(button_19_on, 4, 5)
+        self.power_layout.addWidget(button_19_off, 4, 6)
+        self.power_layout.addWidget(button_24_on, 5, 5)
+        self.power_layout.addWidget(button_24_off, 5, 6)
+        self.power_layout.addWidget(button_56_on, 6, 5)
+        self.power_layout.addWidget(button_56_off, 6, 6)
 
         # handle click:
         button_3_3_on.clicked.connect(self.handle_on_3_3)
@@ -309,9 +306,9 @@ class RobotControlGUI(QMainWindow):
         button_56_on.clicked.connect(self.handle_on_56)
         button_56_off.clicked.connect(self.handle_off_56)
 
-        power_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.power_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        right_layout.addWidget(power_group)
+        right_layout.addWidget(self.power_group)
         
         # Emergency Stop Section
         emergency_group = QGroupBox("Emergency Stop")
@@ -362,42 +359,54 @@ class RobotControlGUI(QMainWindow):
         print("turn off everything except 19v, 3.3v, 5v")
 
     # functions in Power Supply Section:
-    def handle_on_3_3(self):
+    def handle_on_3_3(self, ):
+        # change status:
+        self.power_layout.removeWidget(self.)
+        self.power_layout.addWidget(QLabel("ON"), 1, 4)
         print("3.3 ON")
-        return 1
 
     def handle_off_3_3(self):
+        self.power_layout.addWidget(QLabel("OFF"), 1, 4)
         print("3.3 OFF")
-        return 1
         
     def handle_on_5(self):
+        self.power_layout.addWidget(QLabel("ON"), 2, 4)
         print("5 ON")
 
     def handle_off_5(self):
+        self.power_layout.addWidget(QLabel("OFF"), 2, 4)
         print("5 OFF")
 
     def handle_on_12(self):
+        self.power_layout.addWidget(QLabel("ON"), 3, 4)
         print("12 ON")
 
     def handle_off_12(self):
+        self.power_layout.addWidget(QLabel("OFF"), 3, 4)
         print("12 OFF")
 
     def handle_on_19(self):
+        self.power_layout.addWidget(QLabel("ON"), 4, 4)
         print("19 ON")
 
     def handle_off_19(self):
+        self.power_layout.addWidget(QLabel("OFF"), 4, 4)
         print("19 OFF")
 
     def handle_on_24(self):
+        self.power_layout.addWidget(QLabel("ON"), 5, 4)
         print("24 ON")
 
     def handle_off_24(self):
+        self.power_layout.addWidget(QLabel("OFF"), 5, 4)
         print("24 OFF")
 
     def handle_on_56(self):
+        self.power_layout.addWidget(QLabel("ON"), 6, 4)
         print("56 ON")
 
     def handle_off_56(self):
+        self.power_layout.addWidget(QLabel("OFF"), 6, 4)
         print("56 OFF")
 
 # Main function to run the application
