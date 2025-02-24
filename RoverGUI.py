@@ -1,5 +1,8 @@
+# Why it is called RoverGUI: This program is for faking the GUI of a rover control system.
+
 import sys
 import time
+import random
 from serial import Serial
 import serial.tools.list_ports
 
@@ -8,7 +11,7 @@ from PyQt6.QtWidgets import (
     QLabel, QComboBox, QGroupBox, QVBoxLayout, QHBoxLayout, QGridLayout,
     QDoubleSpinBox, QScrollArea, QSizePolicy, QTableView
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 
 # Get available serial ports
@@ -75,39 +78,6 @@ class StatusSelectionWidget(QWidget):
             self.main_layout.addWidget(led_status)
         self.status_selector.setCurrentIndex(0)  # Reset selection
 
-# class PowerSupplyWidget(QWidget):
-#     def __init__(self):
-#         super().__init__()
-
-#         # Create a model
-#         self.model = QStandardItemModel()
-#         self.model.setColumnCount(4)
-#         self.model.setHorizontalHeaderLabels(["Voltage(V)", "Specification", "Status", "Control"])
-
-#         # Insert voltage data
-#         data = [
-#             [3.3, "Main Controller", "---", "---"],
-#             [5, "tire power control signals, network switch", "---", "---"],
-#             [12, "---", "---", "---"]
-#             [19, "Computers", "---", "---"]
-#             [24, "Antenna, Cameras", "---", "---" ]
-#             [56, "special scientific camera, main bus", "---", "---"]
-#         ]
-
-#         for row in data:
-#             items = [QStandardItem(str(item)) for item in row]
-#             self.model.appendRow(items)
-
-#         # Create a QTableView
-#         self.table_view = QTableView()
-#         self.table_view.setModel(self.model)
-
-#         # Layout
-#         layout = QVBoxLayout()
-#         layout.addWidget(self.table_view)
-#         self.setLayout(layout)
-
-#         # self.setWindowTitle("QTableView Example")
 
 class SignalStatusWidget(QGroupBox):
     """
@@ -163,12 +133,73 @@ class LEDStatusWidget(SignalStatusWidget):
         self.layout.addWidget(QLabel("Color"), 1, 0)
         self.layout.addWidget(QLabel("Green"), 1, 1)
 
+class FakeNumber(QLabel):
+    def __init__(self, current_value: float, ideal_value: float, std_dev: float, alpha: float=0.1, beta: float=0.1):
+        """
+        Fake number label for displaying a number with ideal value and standard deviation.
+        :param current_value: Number to display.
+        :param ideal_value: Ideal value of the number.
+        :param std_dev: Standard deviation of the number.
+        :param alpha: 回归强度
+        :param beta: 随机强度
+        """
+        super().__init__(str(current_value))
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.current_value = current_value
+        self.ideal_value = ideal_value
+        self.std_dev = std_dev
+        self.alpha = alpha
+        self.beta = beta
+        self.last_delta = ideal_value - current_value
+
+    def generate_smooth_value(self):
+        """
+        生成平滑的电压/电流伪造数据。
+
+        参数:
+        - current_value: float, 当前电压/电流值。
+        - last_delta: float, 上一次的变化值（类似于导数）。
+        - ideal_value: float, 理想的电压/电流值。
+        - sigma: float, 标准差，控制随机波动的幅度。
+        - alpha: float, 默认0.1，控制向理想值回归的强度。
+        - beta: float, 默认0.5，控制变化率的影响。
+
+        返回:
+        - new_value: float, 新的电压/电流值。
+        - new_delta: float, 新的变化值（new_value - current_value）。
+        """
+        # 趋势项：使新值向理想值靠拢
+        trend = self.alpha * (self.ideal_value - self.current_value)
+        # 导数影响：考虑上一次的变化
+        derivative_effect = self.beta * self.last_delta
+        # 随机扰动：从正态分布中抽取
+        noise = random.gauss(0, self.std_dev)
+        # 计算新值
+        new_value = self.current_value + trend + derivative_effect + noise
+        # 计算新的变化值
+        new_delta = new_value - self.current_value
+
+        # 更新状态
+        self.current_value = new_value
+        self.last_delta = new_delta
+        self.setText(f"{new_value:.2f}")
+
+
 class RobotControlGUI(QMainWindow):
     """
     Main GUI for Robot Control.
     """
     def __init__(self):
         super().__init__()
+
+        # store the voltage values and current values
+        self.v_c_values = []
+
+        # set the timer for updating the voltage and current values
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_v_c_values)
+        self.timer.start(1000)
+
         self.setWindowTitle("Robot Operating System")
         
         central_widget = QWidget()
@@ -232,20 +263,32 @@ class RobotControlGUI(QMainWindow):
         self.power_layout.addWidget(QLabel("Special Scientific Camera, Main Bus"), 6, 1)
 
         # real voltage
-        self.power_layout.addWidget(QLabel("3.29"), 1, 2)
-        self.power_layout.addWidget(QLabel("4.89"), 2, 2)
-        self.power_layout.addWidget(QLabel("11.98"), 3, 2)
-        self.power_layout.addWidget(QLabel("19.05"), 4, 2)
-        self.power_layout.addWidget(QLabel("23.95"), 5, 2)
-        self.power_layout.addWidget(QLabel("55.80"), 6, 2)
+        self.v_c_values.append(FakeNumber(3.29, 3.3, 0.1))
+        self.power_layout.addWidget(self.v_c_values[-1], 1, 2)
+        self.v_c_values.append(FakeNumber(4.89, 5, 0.1))
+        self.power_layout.addWidget(self.v_c_values[-1], 2, 2)
+        self.v_c_values.append(FakeNumber(11.98, 12, 0.1))
+        self.power_layout.addWidget(self.v_c_values[-1], 3, 2)
+        self.v_c_values.append(FakeNumber(19.05, 19, 0.1))
+        self.power_layout.addWidget(self.v_c_values[-1], 4, 2)
+        self.v_c_values.append(FakeNumber(23.95, 24, 0.1))
+        self.power_layout.addWidget(self.v_c_values[-1], 5, 2)
+        self.v_c_values.append(FakeNumber(55.80, 56, 0.1))
+        self.power_layout.addWidget(self.v_c_values[-1], 6, 2)
 
         # real current
-        self.power_layout.addWidget(QLabel("11.9"), 1, 3)
-        self.power_layout.addWidget(QLabel("29.5"), 2, 3)
-        self.power_layout.addWidget(QLabel("1120"), 3, 3)
-        self.power_layout.addWidget(QLabel("5900"), 4, 3)
-        self.power_layout.addWidget(QLabel("3203"), 5, 3)
-        self.power_layout.addWidget(QLabel("4732"), 6, 3)
+        self.v_c_values.append(FakeNumber(11.9, 12, 0.1))
+        self.power_layout.addWidget(self.v_c_values[-1], 1, 3)
+        self.v_c_values.append(FakeNumber(29.5, 30, 0.1))
+        self.power_layout.addWidget(self.v_c_values[-1], 2, 3)
+        self.v_c_values.append(FakeNumber(1120, 1100, 10))
+        self.power_layout.addWidget(self.v_c_values[-1], 3, 3)
+        self.v_c_values.append(FakeNumber(5900, 6000, 50))
+        self.power_layout.addWidget(self.v_c_values[-1], 4, 3)
+        self.v_c_values.append(FakeNumber(3203, 3200, 20))
+        self.power_layout.addWidget(self.v_c_values[-1], 5, 3)
+        self.v_c_values.append(FakeNumber(4732, 4700, 30))
+        self.power_layout.addWidget(self.v_c_values[-1], 6, 3)
 
         # status:
         self.status_3_3 = QLabel("--", self)
@@ -333,6 +376,11 @@ class RobotControlGUI(QMainWindow):
         
         right_layout.addWidget(emergency_group)
 
+    def update_v_c_values(self):
+        print("update voltage and current values")
+        for v_c_value in self.v_c_values:
+            v_c_value.generate_smooth_value()
+
     # Related functions:
     # functions in LED control section:
     def handle_led_on(self):
@@ -411,13 +459,13 @@ class RobotControlGUI(QMainWindow):
 
 # Main function to run the application
 def main():
-    app = QApplication(sys.argv)
-    gui = RobotControlGUI()
-    gui.show()
-    sys.exit(app.exec())
+    try:
+        app = QApplication(sys.argv)
+        gui = RobotControlGUI()
+        gui.show()
+        sys.exit(app.exec())
+    except Exception as e:
+        print("Error: ", e)
 
 if __name__ == "__main__":
     main()
-
-
-
