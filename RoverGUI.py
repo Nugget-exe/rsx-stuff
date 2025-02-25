@@ -17,8 +17,9 @@ from PyQt6.QtGui import QStandardItemModel, QStandardItem
 # Get available serial ports
 available_ports = serial.tools.list_ports.comports()
 selected_port = available_ports[0] if available_ports else None
-arduino = None  # Uncomment below to initialize with actual serial port
-# arduino = Serial(port=selected_port.device, baudrate=9600, timeout=.1)
+# arduino = None  # Uncomment below to initialize with actual serial port
+print(selected_port.device)
+arduino = Serial(port=selected_port.device, baudrate=115200, timeout=.1)
 
 # communicate with the arduino: the write_read function
 def write_read(x):
@@ -38,8 +39,10 @@ class StatusSelectionWidget(QWidget):
     """
     Widget for selecting and displaying different status group boxes.
     """
-    def __init__(self):
+    def __init__(self, temp_label):
         super().__init__()
+
+        self.temp_label = temp_label
         
         self.setWindowTitle("Dynamic GroupBox Example")
         self.resize(400, 250)
@@ -74,7 +77,7 @@ class StatusSelectionWidget(QWidget):
             motor_status = MotorStatusWidget()
             self.main_layout.addWidget(motor_status)
         elif index == 3:  # LEDs
-            led_status = LEDStatusWidget()
+            led_status = LEDStatusWidget(self.temp_label)
             self.main_layout.addWidget(led_status)
         self.status_selector.setCurrentIndex(0)  # Reset selection
 
@@ -125,13 +128,13 @@ class MotorStatusWidget(SignalStatusWidget):
         self.layout.addWidget(QLabel("45°C"), 3, 1)
 
 class LEDStatusWidget(SignalStatusWidget):
-    def __init__(self):
+    def __init__(self, temp_label):
         super().__init__("LED Status")
         
         self.layout.addWidget(QLabel("LED Status"), 0, 0)
-        self.layout.addWidget(QLabel("On"), 0, 1)
-        self.layout.addWidget(QLabel("Color"), 1, 0)
-        self.layout.addWidget(QLabel("Green"), 1, 1)
+        self.layout.addWidget(temp_label, 0, 1)
+        # self.layout.addWidget(QLabel("Color"), 1, 0)
+        # self.layout.addWidget(QLabel("Green"), 1, 1)
 
 class FakeNumber(QLabel):
     def __init__(self, current_value: float, ideal_value: float, std_dev: float, alpha: float=0.1, beta: float=0.1):
@@ -192,6 +195,8 @@ class RobotControlGUI(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.temp_label = QLabel("off")
+
         # store the voltage values and current values
         self.v_c_values = []
 
@@ -215,7 +220,7 @@ class RobotControlGUI(QMainWindow):
         # Signals & Status Section
         status_group = QGroupBox("Signals and Status")
         status_layout = QVBoxLayout(status_group)
-        self.status_widget = StatusSelectionWidget()
+        self.status_widget = StatusSelectionWidget(self.temp_label)
         status_layout.addWidget(self.status_widget)
         left_layout.addWidget(status_group)
 
@@ -377,22 +382,25 @@ class RobotControlGUI(QMainWindow):
         right_layout.addWidget(emergency_group)
 
     def update_v_c_values(self):
-        print("update voltage and current values")
+        # print("update voltage and current values")
         for v_c_value in self.v_c_values:
             v_c_value.generate_smooth_value()
 
     # Related functions:
     # functions in LED control section:
     def handle_led_on(self):
-        write_read("LED_ON")
+        write_read("green on\n")
+        self.temp_label.setText("on")
         print("LED_ON")
 
     def handle_led_off(self):
-        write_read("LED_OFF")
+        write_read("off\n")
+        self.temp_label.setText("off")
         print("LED_OFF")
 
     def handle_led_blink(self):
-        write_read("LED_BLINK")
+        write_read("green blink\n")
+        self.temp_label.setText("blink")
         print("LED_BLINK")
 
     # functions in E STOP section: 
